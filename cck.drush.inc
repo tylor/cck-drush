@@ -57,6 +57,10 @@ function drush_drush_help($section) {
       return dt("This command will list your content types.");
     case 'drush:cck-list':
       return dt("This command will list your CCK content fields for a provided content type.");
+    case 'drush:cck-add-textfield':
+        return dt("This command will add a CCK textfield.");
+    case 'drush:cck-delete':
+            return dt("This command will delete CCK content fields.");
   }
 }
 
@@ -77,11 +81,9 @@ function drush_cck_list($content_type, $field_name = NULL) {
   
   // Maybe swap this all for a nice big table view.
   if($field = $fields[$field_name]) {
-    $settings = array('type', 'required', 'multiple');
-    foreach($settings as $setting) {
-      $info_table[$setting] = $field[$setting];
-//      $tab_length = strlen($setting) < 8 ? "\t\t\t" : "\t\t"; // Pretty dirty.
-  //    drush_print("$setting:$tab_length" . $field[$setting]);  
+    $options = array('type', 'required', 'multiple');
+    foreach($options as $option) {
+      $info_table[$option] = $field[$option];
     }
     drush_print_table(drush_key_value_to_array_table($info_table));
   }
