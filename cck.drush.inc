@@ -47,6 +47,21 @@ function cck_drush_command() {
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
+  
+  $items['cck-add-integer'] = array(
+    'description' => "Create a numeric integer field for a content type.",
+    'arguments' => array(
+      'content_type' => 'Content type you would like to create field on.',
+      'field' => 'The field name you would like to use, add the field_ prefix.',
+    ),
+    'options' => array(
+      '--label' => 'Human readable label.',
+    ),
+    'examples' => array(
+      'drush cck-add-integer content_type field_name --label="Label"' => 'Create a numeric integer field on a content type with a field name and a human readable label.',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+  );
 
   return $items;
 }
@@ -58,9 +73,11 @@ function drush_drush_help($section) {
     case 'drush:cck-list':
       return dt("This command will list your CCK content fields for a provided content type.");
     case 'drush:cck-add-textfield':
-        return dt("This command will add a CCK textfield.");
+      return dt("This command will add a CCK textfield.");
     case 'drush:cck-delete':
-            return dt("This command will delete CCK content fields.");
+      return dt("This command will delete CCK content fields.");
+    case 'drush:cck-add-decimal':
+      return dt("This command will add a CCK integer field.");
   }
 }
 
@@ -119,4 +136,21 @@ function drush_cck_delete($type_name) {
   foreach($fields as $field_name) {
     print_r(content_field_instance_delete($field_name, $type_name));
   }
+}
+
+function drush_cck_add_integer($content_type, $field_name) {
+  $field = array(
+    'field_name' => $field_name,
+    'type_name' => $content_type,
+    'type' => 'number_integer',
+    'widget_type' => 'number',
+  );
+  
+  // Look into $additional_options to do this kind of stuff and then just loop through any extra arguments.
+  if($label = drush_get_option('label')) {
+    $field['label'] = $label;
+  }
+  
+  include_once('./'. drupal_get_path('module', 'content') .'/includes/content.crud.inc');
+  print_r(content_field_instance_create($field));
 }
