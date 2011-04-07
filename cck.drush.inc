@@ -35,6 +35,36 @@ function cck_drush_command() {
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
+  $items['cck-add-textarea'] = array(
+    'description' => "Create a basic textarea for a content type.",
+    'arguments' => array(
+      'content_type' => 'Content type you would like to create field on.',
+      'field' => 'The field name you would like to use, add the field_ prefix.',
+    ),
+    'options' => array(
+      '--label' => 'Human readable label.',
+      '--rows' => 'Number of rows.',
+    ),
+    'examples' => array(
+      'drush cck-add-textarea content_type field_name --label="Label"' => 'Create a basic textarea on a content type with a field name and a human readable label.',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+  );
+  $items['cck-add-optionwidgets_onoff'] = array(
+    'description' => "Create an on/off checkbox for a content type.",
+    'arguments' => array(
+      'content_type' => 'Content type you would like to create field on.',
+      'field' => 'The field name you would like to use, add the field_ prefix.',
+    ),
+    'options' => array(
+      '--label' => 'Human readable label.',
+      '--allowed_values' => 'Checkbox allowed values.',
+    ),
+    'examples' => array(
+      'drush cck-add-optionwidgets_onoff content_type field_name --label="Label" --allowed_values="true|True\nfalse|False"' => 'Create a on/off checkbox on a content type with a field name and a human readable label.',
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+  );
   $items['cck-delete'] = array(
     'description' => "Delete a field from a content type.",
     'arguments' => array(
@@ -74,6 +104,10 @@ function drush_drush_help($section) {
       return dt("This command will list your CCK content fields for a provided content type.");
     case 'drush:cck-add-textfield':
       return dt("This command will add a CCK textfield.");
+    case 'drush:cck-add-textarea':
+      return dt("This command will add a CCK textarea.");
+    case 'drush:cck-add-optionwidgets_onoff':
+      return dt("This command will add a CCK on/off checkbox.");
     case 'drush:cck-delete':
       return dt("This command will delete CCK content fields.");
     case 'drush:cck-add-decimal':
@@ -118,10 +152,50 @@ function drush_cck_add_textfield($content_type, $field_name) {
     'type' => 'text',
     'widget_type' => 'text_textfield',
   );
+
+  // Look into $additional_options to do this kind of stuff and then just loop through any extra arguments.
+  if($label = drush_get_option('label')) {
+    $field['label'] = $label;
+  }
+
+  include_once('./'. drupal_get_path('module', 'content') .'/includes/content.crud.inc');
+  print_r(content_field_instance_create($field));
+}
+
+function drush_cck_add_textarea($content_type, $field_name) {
+  $field = array(
+    'field_name' => $field_name,
+    'type_name' => $content_type,
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+  );
+
+  // Look into $additional_options to do this kind of stuff and then just loop through any extra arguments.
+  if($label = drush_get_option('label')) {
+    $field['label'] = $label;
+  }
+  if($rows = drush_get_option('rows')) {
+    $field['rows'] = $rows;
+  }
+
+  include_once('./'. drupal_get_path('module', 'content') .'/includes/content.crud.inc');
+  print_r(content_field_instance_create($field));
+}
+
+function drush_cck_add_optionwidgets_onoff($content_type, $field_name) {
+  $field = array(
+    'field_name' => $field_name,
+    'type_name' => $content_type,
+    'type' => 'text',
+    'widget_type' => 'optionwidgets_onoff',
+  );
   
   // Look into $additional_options to do this kind of stuff and then just loop through any extra arguments.
   if($label = drush_get_option('label')) {
     $field['label'] = $label;
+  }
+  if($allowed_values = drush_get_option('allowed_values')) {
+    $field['allowed_values'] = $allowed_values;
   }
   
   include_once('./'. drupal_get_path('module', 'content') .'/includes/content.crud.inc');
